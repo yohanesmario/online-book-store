@@ -1,0 +1,526 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API Documentation for Online Book Store.",
+        "title": "Online Book Store API",
+        "contact": {
+            "name": "Yohanes Mario Chandra",
+            "email": "yohanes.mc@gmail.com"
+        },
+        "version": "0.0.1"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/api/v1/books": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "List all books, paginated by lastId and limit.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Book APIs"
+                ],
+                "summary": "List Books",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "lastId of the fetched books. Default to 0",
+                        "name": "lastId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "number of books to fetch. Default to 10",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of books returned. Will return lastId=-1 if no more books to fetch",
+                        "schema": {
+                            "$ref": "#/definitions/book.listBooksResponsePayload"
+                        }
+                    },
+                    "400": {
+                        "description": "Input can't be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/res.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/res.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/order/create": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new order with list of items which contains bookId and quantity.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order APIs"
+                ],
+                "summary": "Create Order",
+                "parameters": [
+                    {
+                        "description": "Order data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.createOrderRequestPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Create order success, order id returned",
+                        "schema": {
+                            "$ref": "#/definitions/order.createOrderResponsePayload"
+                        }
+                    },
+                    "400": {
+                        "description": "Input can't be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/res.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/res.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/orders": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "List current user's orders, paginated by lastId and limit.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order APIs"
+                ],
+                "summary": "List Orders",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "lastId of the fetched orders. Default to 0",
+                        "name": "lastId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "number of orders to fetch. Default to 10",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of orders returned. Will return lastId=-1 if no more orders to fetch",
+                        "schema": {
+                            "$ref": "#/definitions/order.listOrdersResponsePayload"
+                        }
+                    },
+                    "400": {
+                        "description": "Input can't be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/res.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/res.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/login": {
+            "post": {
+                "description": "Login using email and password, return jwt token.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User APIs"
+                ],
+                "summary": "Login",
+                "parameters": [
+                    {
+                        "description": "User credentials",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.loginRequestPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login success, jwt token returned",
+                        "schema": {
+                            "$ref": "#/definitions/user.loginResponsePayload"
+                        }
+                    },
+                    "400": {
+                        "description": "Input can't be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/res.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/res.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/register": {
+            "post": {
+                "description": "Create user with name, email, and password.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User APIs"
+                ],
+                "summary": "Create User",
+                "parameters": [
+                    {
+                        "description": "User data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.createUserRequestPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/user.createUserResponsePayload"
+                        }
+                    },
+                    "400": {
+                        "description": "Input can't be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/res.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/res.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/healthz": {
+            "get": {
+                "description": "Healthcheck api, always expected to return \"OK\" and http status code 200. If not, something is wrong.",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Z-Pages"
+                ],
+                "summary": "Healthcheck",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "book.listBooksResponseData": {
+            "type": "object",
+            "properties": {
+                "books": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/data.BookData"
+                    }
+                },
+                "lastId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "book.listBooksResponsePayload": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/book.listBooksResponseData"
+                }
+            }
+        },
+        "data.BookData": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isbn": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "data.CreateOrderItemData": {
+            "type": "object",
+            "properties": {
+                "book_id": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "data.OrderData": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/data.OrderItemData"
+                    }
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "data.OrderItemData": {
+            "type": "object",
+            "properties": {
+                "book": {
+                    "$ref": "#/definitions/data.BookData"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "purchase_price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "errorcode.ErrorCode": {
+            "type": "string",
+            "enum": [
+                "UNKNOWN_ERROR",
+                "INVALID_INPUT",
+                "NOT_FOUND",
+                "UNAUTHORIZED"
+            ],
+            "x-enum-varnames": [
+                "UnknownError",
+                "InvalidInput",
+                "NotFound",
+                "Unauthorized"
+            ]
+        },
+        "order.createOrderRequestPayload": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/data.CreateOrderItemData"
+                    }
+                }
+            }
+        },
+        "order.createOrderResponseData": {
+            "type": "object",
+            "properties": {
+                "order_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "order.createOrderResponsePayload": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/order.createOrderResponseData"
+                }
+            }
+        },
+        "order.listOrdersResponsePayload": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/data.OrderData"
+                    }
+                }
+            }
+        },
+        "res.ErrorData": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "$ref": "#/definitions/errorcode.ErrorCode"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "res.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/res.ErrorData"
+                }
+            }
+        },
+        "user.createUserRequestPayload": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.createUserResponseData": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "user.createUserResponsePayload": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/user.createUserResponseData"
+                }
+            }
+        },
+        "user.loginRequestPayload": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.loginResponseData": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.loginResponsePayload": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/user.loginResponseData"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.\u003cbr\u003e\u003cb\u003eExample:\u003c/b\u003e \u003ccode\u003eBearer \u0026lt;jwt_token_here\u0026gt;\u003c/code\u003e",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    },
+    "externalDocs": {
+        "description": "Github Repository",
+        "url": "https://github.com/yohanesmario/online-book-store"
+    }
+}

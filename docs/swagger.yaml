@@ -1,0 +1,345 @@
+basePath: /
+definitions:
+  book.listBooksResponseData:
+    properties:
+      books:
+        items:
+          $ref: '#/definitions/data.BookData'
+        type: array
+      lastId:
+        type: integer
+    type: object
+  book.listBooksResponsePayload:
+    properties:
+      data:
+        $ref: '#/definitions/book.listBooksResponseData'
+    type: object
+  data.BookData:
+    properties:
+      author:
+        type: string
+      id:
+        type: integer
+      isbn:
+        type: string
+      price:
+        type: number
+      title:
+        type: string
+    type: object
+  data.CreateOrderItemData:
+    properties:
+      book_id:
+        type: integer
+      quantity:
+        type: integer
+    type: object
+  data.OrderData:
+    properties:
+      id:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/data.OrderItemData'
+        type: array
+      user_id:
+        type: integer
+    type: object
+  data.OrderItemData:
+    properties:
+      book:
+        $ref: '#/definitions/data.BookData'
+      id:
+        type: integer
+      purchase_price:
+        type: number
+      quantity:
+        type: integer
+    type: object
+  errorcode.ErrorCode:
+    enum:
+    - UNKNOWN_ERROR
+    - INVALID_INPUT
+    - NOT_FOUND
+    - UNAUTHORIZED
+    type: string
+    x-enum-varnames:
+    - UnknownError
+    - InvalidInput
+    - NotFound
+    - Unauthorized
+  order.createOrderRequestPayload:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/data.CreateOrderItemData'
+        type: array
+    type: object
+  order.createOrderResponseData:
+    properties:
+      order_id:
+        type: integer
+    type: object
+  order.createOrderResponsePayload:
+    properties:
+      data:
+        $ref: '#/definitions/order.createOrderResponseData'
+    type: object
+  order.listOrdersResponsePayload:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/data.OrderData'
+        type: array
+    type: object
+  res.ErrorData:
+    properties:
+      code:
+        $ref: '#/definitions/errorcode.ErrorCode'
+      message:
+        type: string
+    type: object
+  res.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/res.ErrorData'
+    type: object
+  user.createUserRequestPayload:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  user.createUserResponseData:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  user.createUserResponsePayload:
+    properties:
+      data:
+        $ref: '#/definitions/user.createUserResponseData'
+    type: object
+  user.loginRequestPayload:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  user.loginResponseData:
+    properties:
+      token:
+        type: string
+    type: object
+  user.loginResponsePayload:
+    properties:
+      data:
+        $ref: '#/definitions/user.loginResponseData'
+    type: object
+externalDocs:
+  description: Github Repository
+  url: https://github.com/yohanesmario/online-book-store
+host: localhost:8080
+info:
+  contact:
+    email: yohanes.mc@gmail.com
+    name: Yohanes Mario Chandra
+  description: API Documentation for Online Book Store.
+  title: Online Book Store API
+  version: 0.0.1
+paths:
+  /api/v1/books:
+    get:
+      description: List all books, paginated by lastId and limit.
+      parameters:
+      - description: lastId of the fetched books. Default to 0
+        in: query
+        name: lastId
+        type: integer
+      - description: number of books to fetch. Default to 10
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of books returned. Will return lastId=-1 if no more books
+            to fetch
+          schema:
+            $ref: '#/definitions/book.listBooksResponsePayload'
+        "400":
+          description: Input can't be parsed
+          schema:
+            $ref: '#/definitions/res.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/res.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List Books
+      tags:
+      - Book APIs
+  /api/v1/order/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new order with list of items which contains bookId and
+        quantity.
+      parameters:
+      - description: Order data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/order.createOrderRequestPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Create order success, order id returned
+          schema:
+            $ref: '#/definitions/order.createOrderResponsePayload'
+        "400":
+          description: Input can't be parsed
+          schema:
+            $ref: '#/definitions/res.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/res.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create Order
+      tags:
+      - Order APIs
+  /api/v1/orders:
+    get:
+      description: List current user's orders, paginated by lastId and limit.
+      parameters:
+      - description: lastId of the fetched orders. Default to 0
+        in: query
+        name: lastId
+        type: integer
+      - description: number of orders to fetch. Default to 10
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of orders returned. Will return lastId=-1 if no more orders
+            to fetch
+          schema:
+            $ref: '#/definitions/order.listOrdersResponsePayload'
+        "400":
+          description: Input can't be parsed
+          schema:
+            $ref: '#/definitions/res.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/res.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List Orders
+      tags:
+      - Order APIs
+  /api/v1/user/login:
+    post:
+      consumes:
+      - application/json
+      description: Login using email and password, return jwt token.
+      parameters:
+      - description: User credentials
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user.loginRequestPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login success, jwt token returned
+          schema:
+            $ref: '#/definitions/user.loginResponsePayload'
+        "400":
+          description: Input can't be parsed
+          schema:
+            $ref: '#/definitions/res.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/res.ErrorResponse'
+      summary: Login
+      tags:
+      - User APIs
+  /api/v1/user/register:
+    post:
+      consumes:
+      - application/json
+      description: Create user with name, email, and password.
+      parameters:
+      - description: User data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user.createUserRequestPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            $ref: '#/definitions/user.createUserResponsePayload'
+        "400":
+          description: Input can't be parsed
+          schema:
+            $ref: '#/definitions/res.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/res.ErrorResponse'
+      summary: Create User
+      tags:
+      - User APIs
+  /healthz:
+    get:
+      description: Healthcheck api, always expected to return "OK" and http status
+        code 200. If not, something is wrong.
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Healthcheck
+      tags:
+      - Z-Pages
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.<br><b>Example:</b>
+      <code>Bearer &lt;jwt_token_here&gt;</code>
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

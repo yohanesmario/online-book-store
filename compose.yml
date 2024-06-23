@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16.3-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - ~/postgres/online_book_store:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=user
+      - POSTGRES_DB=online_book_store
